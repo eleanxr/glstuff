@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 /* Use glew.h instead of gl.h to get all the GL prototypes declared */
 #include <GL/glew.h>
 /* Using SDL2 for the base window and OpenGL context init */
@@ -27,7 +25,7 @@ bool compileShader(GLuint shader, const char * source) {
 bool linkProgram(GLuint program, const std::vector<GLuint>& shaders) {
     GLint linkOk = GL_FALSE;
     std::for_each(shaders.begin(), shaders.end(),
-        [&](GLuint shader) { glAttachShader(program, shader); });
+        [&program](GLuint shader) { glAttachShader(program, shader); });
     glLinkProgram(program);
     glGetProgramiv(program, GL_LINK_STATUS, &linkOk);
     return linkOk;
@@ -138,7 +136,7 @@ int main(int argc, char* argv[]) {
     if (glew_status != GLEW_OK) {
 
 
-        cerr << "Error: glewInit: " << glewGetErrorString(glew_status) << endl;
+        std::cerr << "Error: glewInit: " << glewGetErrorString(glew_status) << std::endl;
         return EXIT_FAILURE;
     }
 
