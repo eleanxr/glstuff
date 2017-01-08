@@ -4,13 +4,11 @@ find_package(Boost REQUIRED COMPONENTS
   system
   filesystem
 )
-find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
 include_directories(
   ${Boost_INCLUDE_DIRS}
-  ${SDL2_INCLUDE_DIR}
   ${OPENGL_INCLUDE_DIR}
   ${GLEW_INCLUDE_DIRS}
 )
@@ -32,7 +30,6 @@ add_library(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   ${Boost_LIBRARIES}
-  ${SDL2_LIBRARY}
   ${OPENGL_LIBRARIES}
   ${GLEW_LIBRARIES}
 )
