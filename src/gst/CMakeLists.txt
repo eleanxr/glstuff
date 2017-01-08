@@ -15,11 +15,13 @@ include_directories(
 
 set(${PROJECT_NAME}_HEADERS
   GLObject.hpp
+  Program.hpp
   Shader.hpp
 )
 
 set(${PROJECT_NAME}_SOURCES
   GLObject.cpp
+  Program.cpp
   Shader.cpp
 )
 

@@ -1,4 +1,5 @@
 
+#include <gst/Program.hpp>
 #include <gst/Shader.hpp>
 
 #include <GL/glew.h>
@@ -8,22 +9,19 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
-GLuint program;
 GLint attributeCoord2d;
 
-bool linkProgram(GLuint program, const std::vector<GLuint>& shaders) {
-    GLint linkOk = GL_FALSE;
-    std::for_each(shaders.begin(), shaders.end(),
-        [&program](GLuint shader) { glAttachShader(program, shader); });
-    glLinkProgram(program);
-    glGetProgramiv(program, GL_LINK_STATUS, &linkOk);
-    return linkOk;
-}
+class SdlApplication {
+public:
 
-bool init_resources(void) {
+  SdlApplication() {
+  }
+
+  bool init_resources(void) {
     // Create the vertex shader.
     gst::Shader vertexShader = gst::makeShader(
       GL_VERTEX_SHADER, "shaders/triangle_vertex_shader.glsl");
@@ -41,17 +39,16 @@ bool init_resources(void) {
     }
 
     // Set up the shader program.
-    program = glCreateProgram();
-    GLuint shadersArray[] = { vertexShader.objectId(), fragmentShader.objectId() };
-    std::vector<GLuint> shaders(shadersArray, shadersArray + 2);
-    if (!linkProgram(program, shaders)) {
+    mProgram = std::make_unique<gst::Program>(
+      std::vector<gst::Shader>({ vertexShader, fragmentShader }));
+    if (!mProgram->link()) {
         std::cerr << "Failed to link program." << std::endl;
         return false;
     }
 
     // Bind the vertex array to the program.
     const char * attributeName = "coord2d";
-    attributeCoord2d = glGetAttribLocation(program, attributeName);
+    attributeCoord2d = glGetAttribLocation(mProgram->objectId(), attributeName);
     if (attributeCoord2d == -1) {
         std::cerr << "Could not bind attribute " << attributeName << std::endl;
         return false;
@@ -59,13 +56,13 @@ bool init_resources(void) {
 
     // Compiling, linking, and binding were successful.
     return true;
-}
+  }
 
-void render(SDL_Window* window) {
+  void render(SDL_Window* window) {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(program);
+    glUseProgram(mProgram->objectId());
     glEnableVertexAttribArray(attributeCoord2d);
     GLfloat vertices[] = {
         0.0, 0.8,
@@ -86,13 +83,13 @@ void render(SDL_Window* window) {
     glDisableVertexAttribArray(attributeCoord2d);
 
     SDL_GL_SwapWindow(window);
-}
+  }
 
-void free_resources() {
-    glDeleteProgram(program);
-}
+  void free_resources() {
+    mProgram->freeResources();
+  }
 
-void mainLoop(SDL_Window* window) {
+  void mainLoop(SDL_Window* window) {
     while (true) {
         SDL_Event ev;
         while (SDL_PollEvent(&ev)) {
@@ -101,9 +98,9 @@ void mainLoop(SDL_Window* window) {
         }
         render(window);
     }
-}
+  }
 
-int main(int argc, char* argv[]) {
+  int run(int argc, char * argv[]) {
     /* SDL-related initialising functions */
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window* window = SDL_CreateWindow("My First Triangle",
@@ -133,4 +130,13 @@ int main(int argc, char* argv[]) {
          free resources and exit with a success */
     free_resources();
     return EXIT_SUCCESS;
+  }
+
+private:
+  std::unique_ptr<gst::Program> mProgram;
+};
+
+int main(int argc, char* argv[]) {
+  SdlApplication app;
+  return app.run(argc, argv);
 }
