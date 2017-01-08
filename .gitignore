@@ -1,2 +1,2 @@
-triangle
-*.o
+build/
+*.swp
