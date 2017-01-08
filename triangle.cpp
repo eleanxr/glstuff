@@ -1,4 +1,9 @@
-/* Using standard C++ output libraries */
+
+#include <Shader.hpp>
+
+#include <GL/glew.h>
+
+#include <SDL.h>
 
 #include <algorithm>
 #include <cstdlib>
@@ -6,21 +11,8 @@
 #include <string>
 #include <vector>
 
-/* Use glew.h instead of gl.h to get all the GL prototypes declared */
-#include <GL/glew.h>
-/* Using SDL2 for the base window and OpenGL context init */
-#include <SDL.h>
-
 GLuint program;
 GLint attributeCoord2d;
-
-bool compileShader(GLuint shader, const char * source) {
-    GLint compileOk = GL_FALSE;
-    glShaderSource(shader, 1, &source, NULL);
-    glCompileShader(shader);
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &compileOk);
-    return compileOk;
-}
 
 bool linkProgram(GLuint program, const std::vector<GLuint>& shaders) {
     GLint linkOk = GL_FALSE;
@@ -33,35 +25,24 @@ bool linkProgram(GLuint program, const std::vector<GLuint>& shaders) {
 
 bool init_resources(void) {
     // Create the vertex shader.
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-    const char * vsSource =
-        "#version 120\n"
-        "attribute vec2 coord2d;"
-        "void main(void) {"
-        "  gl_Position = vec4(coord2d, 0.0, 1.0);"
-        "}";
-    if (!compileShader(vs, vsSource)) {
+    gst::Shader vertexShader = gst::makeShader(
+      GL_VERTEX_SHADER, "shaders/triangle_vertex_shader.glsl");
+    if (!compile(vertexShader)) {
         std::cerr << "Failed to compile vertex shader" << std::endl;
         return false;
     }
 
     // Create the fragment shader for the triangle.
-    GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-    const char * fsSource =
-        "#version 120\n"
-        "void main(void) {"
-        "  gl_FragColor[0] = gl_FragCoord.x / 640.0;"
-        "  gl_FragColor[1] = gl_FragCoord.y / 480.0;"
-        "  gl_FragColor[2] = 0.5;"
-        "}";
-    if (!compileShader(fs, fsSource)) {
+    gst::Shader fragmentShader = gst::makeShader(
+      GL_FRAGMENT_SHADER, "shaders/triangle_fragment_shader.glsl");
+    if (!compile(fragmentShader)) {
         std::cerr << "Failed to compile fragment shader" << std::endl;
         return false;
     }
 
     // Set up the shader program.
     program = glCreateProgram();
-    GLuint shadersArray[] = { vs, fs };
+    GLuint shadersArray[] = { vertexShader.objectId(), fragmentShader.objectId() };
     std::vector<GLuint> shaders(shadersArray, shadersArray + 2);
     if (!linkProgram(program, shaders)) {
         std::cerr << "Failed to link program." << std::endl;
