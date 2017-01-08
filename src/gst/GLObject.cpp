@@ -1,4 +1,4 @@
-#include <GLObject.hpp>
+#include <gst/GLObject.hpp>
 
 namespace gst {
 

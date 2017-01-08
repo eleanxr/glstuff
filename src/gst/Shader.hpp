@@ -1,7 +1,7 @@
 #ifndef gst_Shader_hpp_
 #define gst_Shader_hpp_
 
-#include <GLObject.hpp>
+#include <gst/GLObject.hpp>
 
 #include <GL/glew.h>
 
