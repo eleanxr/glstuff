@@ -12,15 +12,17 @@ class Shader;
 class Program : public GLObject {
 public:
 
-  Program(const std::vector<Shader>& shaders);
+  Program();
   virtual ~Program();
 
-  bool link();
   void freeResources();
 
 private:
-  std::vector<Shader> mShaders;
 };
+
+bool link(
+  const Program& program,
+  const std::vector<Shader>& shaders);
 
 } // namespace gst
 

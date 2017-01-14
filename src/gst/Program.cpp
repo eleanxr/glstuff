@@ -6,18 +6,21 @@
 
 namespace gst {
 
-Program::Program(const std::vector<Shader>& shaders)
-: GLObject(glCreateProgram()),
-  mShaders(shaders) {
+Program::Program()
+: GLObject(glCreateProgram()) {
 }
 
 Program::~Program() {
 }
 
-bool Program::link() {
+void Program::freeResources() {
+  glDeleteProgram(objectId());
+}
+
+bool link(const Program& program, const std::vector<Shader>& shaders) {
   GLint linkOk = GL_FALSE;
-  GLuint glObjectId = objectId();
-  std::for_each(mShaders.begin(), mShaders.end(),
+  GLuint glObjectId = program.objectId();
+  std::for_each(shaders.begin(), shaders.end(),
     [&glObjectId](const Shader& shader) {
       glAttachShader(glObjectId, shader.objectId());
     }
@@ -25,10 +28,6 @@ bool Program::link() {
   glLinkProgram(glObjectId);
   glGetProgramiv(glObjectId, GL_LINK_STATUS, &linkOk);
   return linkOk;
-}
-
-void Program::freeResources() {
-  glDeleteProgram(objectId());
 }
 
 } // namespace gst
