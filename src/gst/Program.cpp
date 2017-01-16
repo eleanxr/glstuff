@@ -11,9 +11,6 @@ Program::Program()
 }
 
 Program::~Program() {
-}
-
-void Program::freeResources() {
   glDeleteProgram(objectId());
 }
 
