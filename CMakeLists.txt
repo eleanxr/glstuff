@@ -1,13 +1,14 @@
 cmake_minimum_required(VERSION 3.6)
 
-project(GLStuff)
+project( GLStuff )
 
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+set( CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 
-include_directories(src)
+include_directories( src )
 
-add_subdirectory(src/gst)
+add_subdirectory( src/gst )
+add_subdirectory( src/qt )
 
-add_subdirectory(shaders)
-add_subdirectory(examples)
+add_subdirectory( shaders )
+add_subdirectory( examples )
 

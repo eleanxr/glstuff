@@ -4,6 +4,7 @@ find_package(Boost REQUIRED COMPONENTS
   system
   filesystem
 )
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
