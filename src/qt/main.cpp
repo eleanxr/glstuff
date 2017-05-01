@@ -8,6 +8,10 @@ int main( int argc, char * argv[] )
 {
   QApplication app( argc, argv );
 
+  QSurfaceFormat surfaceFormat;
+  surfaceFormat.setDepthBufferSize( 24 );
+  QSurfaceFormat::setDefaultFormat( surfaceFormat );
+
   qt::GLObjectView objectView;
   objectView.show();
 

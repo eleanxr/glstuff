@@ -15,8 +15,6 @@ public:
   Program();
   virtual ~Program();
 
-  void freeResources();
-
 private:
 };
 

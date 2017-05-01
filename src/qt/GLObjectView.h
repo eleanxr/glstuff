@@ -3,12 +3,13 @@
 
 #include <gst/Program.hpp>
 
-#include <QOpenGLFunctions>
 #include <QOpenGLWidget>
+
+#include <memory>
 
 namespace qt {
 
-class GLObjectView : public QOpenGLWidget, protected QOpenGLFunctions
+class GLObjectView : public QOpenGLWidget
 {
   Q_OBJECT
 
@@ -25,7 +26,7 @@ private:
 
   GLint mAttributeCoord2d;
   GLuint mVboTriangle;
-  gst::Program mProgram;
+  std::unique_ptr< gst::Program > mProgram;
 
 };
 

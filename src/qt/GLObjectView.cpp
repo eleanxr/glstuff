@@ -1,4 +1,4 @@
-#include "GLObjectView.h"
+#include <qt/GLObjectView.h>
 
 #include <gst/Shader.hpp>
 #include <gst/GLObject.hpp>
@@ -7,7 +7,7 @@
 
 namespace qt {
 
-GLObjectView::GLObjectView(QWidget *parent):
+GLObjectView::GLObjectView( QWidget * parent ):
   QOpenGLWidget( parent ),
   mAttributeCoord2d(),
   mProgram()
@@ -21,6 +21,10 @@ GLObjectView::~GLObjectView()
 
 void GLObjectView::initializeGL()
 {
+  glewInit();
+
+  mProgram.reset( new gst::Program() );
+
   GLfloat vertices [] = {
     0.0, 0.8,
     -0.8, -0.8,
@@ -47,13 +51,13 @@ void GLObjectView::initializeGL()
 
   // Set up the shader program.
   auto shaders = std::vector<gst::Shader>({ vertexShader, fragmentShader});
-  if (!link(mProgram, shaders)) {
+  if (!link(*mProgram, shaders)) {
     std::cerr << "Failed to link program." << std::endl;
   }
 
   // Bind the vertex array to the program.
   const char * attributeName = "coord2d";
-  mAttributeCoord2d = glGetAttribLocation(mProgram.objectId(), attributeName);
+  mAttributeCoord2d = glGetAttribLocation( mProgram->objectId(), attributeName);
   if (mAttributeCoord2d == -1) {
     std::cerr << "Could not bind attribute " << attributeName << std::endl;
   }
@@ -67,7 +71,7 @@ void GLObjectView::paintGL()
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glUseProgram(mProgram.objectId());
+  glUseProgram(mProgram->objectId());
   glBindBuffer(GL_ARRAY_BUFFER, mVboTriangle);
   glEnableVertexAttribArray(mAttributeCoord2d);
   glVertexAttribPointer(
