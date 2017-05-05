@@ -40,7 +40,7 @@ Shader makeShader(
     std::ostream_iterator<char>(out)
   );
   
-  return std::move(Shader(shaderType, out.str()));
+  return Shader(shaderType, out.str());
 }
 
 bool compile(const Shader& shader) {
