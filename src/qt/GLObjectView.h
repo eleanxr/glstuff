@@ -1,11 +1,12 @@
 #ifndef GLOBJECTVIEW_H
 #define GLOBJECTVIEW_H
 
-#include <gst/Program.hpp>
-
 #include <QOpenGLWidget>
 
-#include <memory>
+#include <osg/ref_ptr>
+
+#include <osgViewer/Viewer>
+#include <osgViewer/GraphicsWindow>
 
 namespace qt {
 
@@ -24,9 +25,8 @@ protected:
 
 private:
 
-  GLint mAttributeCoord2d;
-  GLuint mVboTriangle;
-  std::unique_ptr< gst::Program > mProgram;
+  osg::ref_ptr< osgViewer::Viewer > mViewer;
+  osg::ref_ptr< osgViewer::GraphicsWindowEmbedded > mGraphicsWindow;
 
 };
 

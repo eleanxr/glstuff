@@ -1,6 +1,7 @@
 #include <qt/GLObjectView.h>
 
 #include <QApplication>
+#include <QMainWindow>
 
 #include <iostream>
 
@@ -8,12 +9,10 @@ int main( int argc, char * argv[] )
 {
   QApplication app( argc, argv );
 
-  QSurfaceFormat surfaceFormat;
-  surfaceFormat.setDepthBufferSize( 24 );
-  QSurfaceFormat::setDefaultFormat( surfaceFormat );
-
-  qt::GLObjectView objectView;
-  objectView.show();
+  QMainWindow window;
+  auto objectView = new qt::GLObjectView( &window );
+  window.setCentralWidget( objectView );
+  window.show();
 
   return app.exec();
 }

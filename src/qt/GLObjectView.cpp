@@ -1,7 +1,11 @@
 #include <qt/GLObjectView.h>
 
-#include <gst/Shader.hpp>
-#include <gst/GLObject.hpp>
+#include <osg/Camera>
+#include <osg/Geode>
+#include <osg/Group>
+#include <osg/Light>
+#include <osg/Material>
+#include <osg/ShapeDrawable>
 
 #include <iostream>
 
@@ -9,8 +13,8 @@ namespace qt {
 
 GLObjectView::GLObjectView( QWidget * parent ):
   QOpenGLWidget( parent ),
-  mAttributeCoord2d(),
-  mProgram()
+  mGraphicsWindow( new osgViewer::GraphicsWindowEmbedded( x(), y(), width(), height() ) ),
+  mViewer( new osgViewer::Viewer )
 {
 
 }
@@ -21,71 +25,51 @@ GLObjectView::~GLObjectView()
 
 void GLObjectView::initializeGL()
 {
-  glewInit();
+  osg::ref_ptr< osg::Group > root( new osg::Group );
+  auto rootStateSet = root->getOrCreateStateSet();
+  rootStateSet->setMode( GL_LIGHTING, osg::StateAttribute::ON );
+  rootStateSet->setMode( GL_LIGHT0, osg::StateAttribute::ON );
 
-  mProgram.reset( new gst::Program() );
+  osg::ref_ptr< osg::Light > light( new osg::Light );
+  light->setLightNum( 0 );
+  light->setPosition( osg::Vec4f( 0.0f, 0.0f, 0.0f, 1.0f ) );
+  light->setDiffuse( osg::Vec4f( 1.0f, 1.0f, 1.0f, 1.0f ) );
+  light->setAmbient( osg::Vec4f( 1.0f, 1.0f, 1.0f, 1.0f ) );
+  osg::ref_ptr< osg::LightSource > lightSource( new osg::LightSource );
+  lightSource->setLight( light );
+  lightSource->setLocalStateSetModes( osg::StateAttribute::ON );
+  root->addChild( lightSource );
 
-  GLfloat vertices [] = {
-    0.0, 0.8,
-    -0.8, -0.8,
-    0.8, -0.8
-  };
+  osg::ref_ptr< osg::Cylinder > cylinder(
+    new osg::Cylinder( osg::Vec3f( 0.0f, 0.0f, 0.0f ), 0.25f, 0.5f ) );
+  osg::ref_ptr< osg::ShapeDrawable > drawable( new osg::ShapeDrawable( cylinder ) );
+  drawable->setColor( osg::Vec4f( 1.0f, 0.0f, 1.0f, 1.0f ) );
+  osg::ref_ptr< osg::Geode > geode( new osg::Geode );
+  geode->addDrawable( drawable );
+  lightSource->addChild( geode );
 
-  glGenBuffers( 1, &mVboTriangle );
-  glBindBuffer( GL_ARRAY_BUFFER, mVboTriangle );
-  glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_STATIC_DRAW );
+  auto stateSet = geode->getOrCreateStateSet();
+  osg::ref_ptr< osg::Material > material( new osg::Material );
+  material->setDiffuse( osg::Material::FRONT, osg::Vec4f( 1.0, 0.0, 0.0, 1.0 ) );
+  stateSet->setAttributeAndModes( material, osg::StateAttribute::ON );
+  stateSet->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
 
-  // Create the vertex shader.
-  gst::Shader vertexShader = gst::makeShader(
-    GL_VERTEX_SHADER, "shaders/triangle_vertex_shader.glsl");
-  if (!compile(vertexShader)) {
-    std::cerr << "Failed to compile vertex shader" << std::endl;
-  }
+  osg::ref_ptr< osg::Camera > camera( new osg::Camera );
+  camera->setViewport( 0, 0, width(), height() );
+  camera->setClearColor( osg::Vec4f( 0.9f, 0.9f, 1.0f, 1.0f ) );
+  auto aspectRatio = static_cast< float >( width() ) / static_cast< float >( height() );
+  camera->setProjectionMatrixAsPerspective( 30.0, aspectRatio, 1.0f, 1000.0f );
+  camera->setGraphicsContext( mGraphicsWindow );
 
-  // Create the fragment shader for the triangle.
-  gst::Shader fragmentShader = gst::makeShader(
-    GL_FRAGMENT_SHADER, "shaders/triangle_fragment_shader.glsl");
-  if (!compile(fragmentShader)) {
-    std::cerr << "Failed to compile fragment shader" << std::endl;
-  }
-
-  // Set up the shader program.
-  auto shaders = std::vector<gst::Shader>({ vertexShader, fragmentShader});
-  if (!link(*mProgram, shaders)) {
-    std::cerr << "Failed to link program." << std::endl;
-  }
-
-  // Bind the vertex array to the program.
-  const char * attributeName = "coord2d";
-  mAttributeCoord2d = glGetAttribLocation( mProgram->objectId(), attributeName);
-  if (mAttributeCoord2d == -1) {
-    std::cerr << "Could not bind attribute " << attributeName << std::endl;
-  }
-
+  mViewer->setCamera( camera );
+  mViewer->setSceneData( root );
+  mViewer->setThreadingModel( osgViewer::Viewer::SingleThreaded );
+  mViewer->realize();
 }
 
 void GLObjectView::paintGL()
 {
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glClear(GL_COLOR_BUFFER_BIT);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glUseProgram(mProgram->objectId());
-  glBindBuffer(GL_ARRAY_BUFFER, mVboTriangle);
-  glEnableVertexAttribArray(mAttributeCoord2d);
-  glVertexAttribPointer(
-    mAttributeCoord2d,
-    2,
-    GL_FLOAT,
-    GL_FALSE,
-    0,
-    0
-  );
-
-  glDrawArrays(GL_TRIANGLES, 0, 3);
-
-  glDisableVertexAttribArray(mAttributeCoord2d);
+  mViewer->frame();
 }
 
 } // namespace qt
