@@ -7,7 +7,9 @@ set( CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake )
 include_directories( src )
 
 add_subdirectory( src/gst )
+add_subdirectory( src/osgtool )
 add_subdirectory( src/qt )
+add_subdirectory( src/osgview )
 
 add_subdirectory( shaders )
 add_subdirectory( examples )

@@ -3,10 +3,14 @@
 
 #include <QOpenGLWidget>
 
+#include <osgtool/SceneBuilder.h>
+
 #include <osg/ref_ptr>
 
 #include <osgViewer/Viewer>
 #include <osgViewer/GraphicsWindow>
+
+#include <memory>
 
 namespace qt {
 
@@ -25,6 +29,7 @@ protected:
 
 private:
 
+  std::unique_ptr< SceneBuilder > mBuilder;
   osg::ref_ptr< osgViewer::Viewer > mViewer;
   osg::ref_ptr< osgViewer::GraphicsWindowEmbedded > mGraphicsWindow;
 
