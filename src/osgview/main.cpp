@@ -44,5 +44,8 @@ int main( int argc, char * argv[] )
   viewer.setCamera( camera );
   viewer.setSceneData( sceneData );
 
+  graphicsContext->getState()->setUseModelViewAndProjectionUniforms( true );
+  graphicsContext->getState()->setUseVertexAttributeAliasing( true );
+
   return viewer.run();
 }

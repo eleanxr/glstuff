@@ -13,6 +13,10 @@ public:
   osg::ref_ptr< osg::Camera > createCamera( int viewportWidth, int viewportHeight ) const;
   osg::ref_ptr< osg::Node > createSceneRoot() const;
 
+private:
+
+  void configureShaders( osg::StateSet& stateset ) const;
+
 };
 
 #endif // SCENEBUILDER_H
